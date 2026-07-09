@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 24 100% 98%;
+    --foreground: 340 72% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 340 72% 10%;
+    --primary: 342 100% 24%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 22 89% 54%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 20 55% 94%;
+    --muted-foreground: 340 18% 36%;
+    --accent: 22 91% 93%;
+    --accent-foreground: 342 100% 24%;
+    --border: 22 45% 88%;
+    --input: 22 45% 88%;
+    --ring: 22 89% 54%;
+    --radius: 1.35rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    direction: rtl;
+    font-family: "Tajawal", sans-serif;
+  }
+
+  ::selection {
+    background: rgba(243, 106, 33, .25);
+    color: #4B0017;
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  .glass-card {
+    @apply border border-white/70 bg-white/75 shadow-soft backdrop-blur-xl;
+  }
+
+  .orange-gradient {
+    background: linear-gradient(135deg, #F36A21, #FF9B64);
+  }
+
+  .wine-gradient {
+    background: linear-gradient(135deg, #7A0024, #4B0017);
+  }
+
+  .soft-grid {
+    background-image: linear-gradient(rgba(122,0,36,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(122,0,36,.06) 1px, transparent 1px);
+    background-size: 34px 34px;
+  }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
