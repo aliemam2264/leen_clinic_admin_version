@@ -14,6 +14,7 @@ export type SiteConfigContent = {
   brand: string;
   arabicName: string;
   tagline: string;
+  heroImage?: string;
   phoneDisplay: string;
   whatsappNumber: string;
   address: string;

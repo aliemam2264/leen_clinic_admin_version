@@ -8,8 +8,8 @@ type EmptySectionProps = {
 };
 
 export function EmptySection({
-  title = "لا توجد بيانات حاليًا",
-  message = "لم يتم إضافة محتوى لهذا السكشن من لوحة التحكم بعد.",
+  title = "لا توجد عروض حاليًا",
+  message = "لا يوجد عروض متاحة في الوقت الحالي.",
   className,
 }: EmptySectionProps) {
   return (

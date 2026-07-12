@@ -1,4 +1,4 @@
-import { ArrowLeft, BadgeCheck, CalendarCheck, ChevronLeft, Clock, MapPin, Phone, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarCheck, ChevronLeft, Clock, MapPin, Phone, Sparkles, Star, MessageCircle  } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
 import { BookingForm } from "@/components/BookingForm";
 import { EmptySection } from "@/components/EmptySection";
@@ -14,8 +14,40 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trustItems } from "@/lib/data";
 import { getSiteContent } from "@/lib/site-content";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+type OfferWhatsappData = {
+  title?: string;
+  description?: string;
+  oldPrice?: string;
+  newPrice?: string;
+  price?: string;
+  startsAt?: string;
+  endsAt?: string;
+};
+
+function buildOfferWhatsappUrl(
+  offer: OfferWhatsappData,
+  whatsappNumber: string
+) {
+  const message = [
+    "مرحبًا، أريد الاستفسار عن عرض في مجمع لين الشرق",
+    "",
+    offer.title ? `العرض : ${offer.title}` : null,
+    offer.description ? `الوصف : ${offer.description}` : null,
+    offer.oldPrice ? `السعر قبل : ${offer.oldPrice}` : null,
+    offer.newPrice ? `السعر بعد : ${offer.newPrice}` : null,
+    !offer.newPrice && offer.price ? `السعر : ${offer.price}` : null,
+    offer.startsAt ? `بداية العرض : ${offer.startsAt}` : null,
+    offer.endsAt ? `نهاية العرض : ${offer.endsAt}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
 
 export default async function Home() {
   const content = await getSiteContent();
@@ -65,7 +97,11 @@ export default async function Home() {
               <div className="absolute -right-8 top-8 h-40 w-40 rounded-full bg-orange/20 blur-3xl" />
               <div className="absolute -left-8 bottom-8 h-40 w-40 rounded-full bg-wine/20 blur-3xl" />
               <div className="relative max-w-[520px] justify-self-center overflow-hidden rounded-[2.5rem] border border-white/80 bg-white/55 shadow-soft backdrop-blur-xl lg:justify-self-end">
-                <img src="/images/hero.png" alt="صورة العيادة" className="block aspect-[.86] w-full rounded-[2.5rem] object-cover" />
+                <img
+                  src={siteConfig.heroImage || "/images/hero.png"}
+                  alt="صورة العيادة"
+                  className="block aspect-[.86] w-full rounded-[2.5rem] object-cover"
+                />
                 <div className="absolute bottom-8 right-8 left-8 rounded-[1.5rem] border border-white/80 bg-white/88 p-4 shadow-soft backdrop-blur">
                   <div className="flex items-center gap-3">
                     <div className="grid h-12 w-12 place-items-center rounded-full bg-peach text-orange">
@@ -122,18 +158,47 @@ export default async function Home() {
                       <Badge className="bg-peach text-wine">عرض</Badge>
                       <h3 className="mt-3 text-xl font-black text-wineDark">{offer.title}</h3>
                       <p className="mt-2 text-sm leading-7 text-muted-foreground">{offer.description}</p>
-                      {(offer.oldPrice || offer.newPrice) ? (
-                        <p className="mt-4 text-sm font-black text-orange">
-                          {offer.oldPrice ? <span className="ml-2 text-muted-foreground line-through">{offer.oldPrice}</span> : null}
-                          {offer.newPrice}
-                        </p>
+                      {offer.oldPrice || offer.newPrice ? (
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                          {offer.oldPrice ? (
+                            <span className="inline-flex items-center gap-1.5 text-lg font-black text-muted-foreground line-through">
+                              <span>{offer.oldPrice}</span>
+                              <img
+                                src="/images/saudi-riyal.svg"
+                                alt="ريال سعودي"
+                                className="h-5 w-5 opacity-60"
+                              />
+                            </span>
+                          ) : null}
+
+                          {offer.newPrice ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/10 px-3 py-1.5 text-xl font-black text-orange">
+                              <span>{offer.newPrice}</span>
+                              <img
+                                src="/images/saudi-riyal.svg"
+                                alt="ريال سعودي"
+                                className="h-6 w-6"
+                              />
+                            </span>
+                          ) : null}
+                        </div>
                       ) : null}
+                      <Button asChild variant="orange" className="mt-5 w-full">
+                        <a
+                          href={buildOfferWhatsappUrl(offer, siteConfig.whatsappNumber)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          اسأل عن العرض
+                        </a>
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             ) : (
-              <EmptySection message="لا توجد عروض مضافة حاليًا. يمكنك إضافة العروض من لوحة التحكم." />
+              <EmptySection />
             )}
           </div>
         </section>
@@ -299,6 +364,13 @@ export default async function Home() {
                     </a>
                   ))}
                 </div>
+                <Link
+                target="_blank"
+                  href="/admin/login"
+                  className="inline-flex items-center justify-center rounded-full border border-wine/10 bg-white px-4 py-2 text-xs font-black text-wine shadow-sm transition hover:bg-orange hover:text-white"
+                >
+                  لوحة التحكم
+                </Link>
               </div>
 
               <Button asChild variant="orange" className="shadow-lg shadow-orange/20">

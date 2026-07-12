@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   BarChart3,
@@ -21,7 +21,6 @@ import {
   Sparkles,
   Star,
   Trash2,
-  UploadCloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +44,7 @@ import type {
   SocialLink,
   TestimonialContent,
 } from "@/lib/content-types";
+import { ImageUploadField } from "./ImageUploadField";
 
 const menuSections = [
   { key: "overview", label: "نظرة عامة", icon: LayoutDashboard },
@@ -60,10 +60,6 @@ const menuSections = [
 
 type AdminSectionKey = (typeof menuSections)[number]["key"];
 
-type UploadState = {
-  field: string;
-  loading: boolean;
-};
 
 function createId(prefix = "item") {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -110,78 +106,6 @@ function Field({ label, children, className }: { label: string; children: React.
       <span className="text-sm font-black text-wineDark">{label}</span>
       {children}
     </label>
-  );
-}
-
-async function uploadImage(file: File, folder = "leen-clinic") {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("folder", folder);
-
-  const response = await fetch("/api/admin/upload", {
-    method: "POST",
-    body: formData,
-  });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.message || "فشل رفع الصورة.");
-  }
-
-  return String(data.secure_url || "");
-}
-
-function ImageField({
-  label,
-  value,
-  fieldId,
-  onChange,
-  uploadState,
-  setUploadState,
-}: {
-  label: string;
-  value: string;
-  fieldId: string;
-  onChange: (value: string) => void;
-  uploadState: UploadState | null;
-  setUploadState: (value: UploadState | null) => void;
-}) {
-  const isLoading = uploadState?.field === fieldId && uploadState.loading;
-
-  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadState({ field: fieldId, loading: true });
-      const url = await uploadImage(file);
-      onChange(url);
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "فشل رفع الصورة.");
-    } finally {
-      setUploadState(null);
-      event.target.value = "";
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <span className="text-sm font-black text-wineDark">{label}</span>
-      <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-        <Input value={value || ""} onChange={(event) => onChange(event.target.value)} placeholder="رابط الصورة أو /images/name.png" dir="ltr" />
-        <label className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-wine/15 bg-white px-5 text-sm font-black text-wine transition hover:bg-peach">
-          <UploadCloud className="h-4 w-4" />
-          {isLoading ? "جاري الرفع..." : "رفع صورة"}
-          <input type="file" accept="image/*" className="hidden" disabled={isLoading} onChange={handleFile} />
-        </label>
-      </div>
-      {value ? (
-        <div className="overflow-hidden rounded-2xl border border-wine/10 bg-peach/30 p-2">
-          <img src={value} alt="Preview" className="max-h-44 w-full rounded-xl object-contain" />
-        </div>
-      ) : null}
-    </div>
   );
 }
 
@@ -363,6 +287,14 @@ function SettingsEditor({ value, onChange }: { value: SiteConfigContent; onChang
         <Field label="الوصف القصير">
           <Input value={value.tagline || ""} onChange={(event) => update("tagline", event.target.value)} placeholder="عيادة تجميل وليزر" />
         </Field>
+        <div className="md:col-span-2">
+          <ImageUploadField
+            label="صورة الهيرو"
+            value={value.heroImage || ""}
+            ruleKey="hero"
+            onChange={(url) => update("heroImage", url)}
+          />
+        </div>
         <Field label="رقم الهاتف للعرض">
           <Input value={value.phoneDisplay || ""} onChange={(event) => update("phoneDisplay", event.target.value)} placeholder="05xxxxxxxx" dir="ltr" />
         </Field>
@@ -817,16 +749,12 @@ function CollectionEditor({
   description,
   items,
   onChange,
-  uploadState,
-  setUploadState,
 }: {
   type: GenericKey;
   title: string;
   description: string;
   items: GenericItem[];
   onChange: (items: GenericItem[]) => void;
-  uploadState: UploadState | null;
-  setUploadState: (value: UploadState | null) => void;
 }) {
   const createEmpty = (): GenericItem => {
     if (type === "offers") return { title: "", description: "", image: "", oldPrice: "", newPrice: "", startsAt: "", endsAt: "", isActive: true };
@@ -940,7 +868,12 @@ function CollectionEditor({
               <>
                 <Field label="عنوان العرض"><Input value={(form as OfferContent).title || ""} onChange={(event) => updateForm("title", event.target.value)} /></Field>
                 <Field label="وصف العرض"><Textarea value={(form as OfferContent).description || ""} onChange={(event) => updateForm("description", event.target.value)} /></Field>
-                <ImageField label="صورة العرض" value={(form as OfferContent).image || ""} fieldId="offer-image" onChange={(value) => updateForm("image", value)} uploadState={uploadState} setUploadState={setUploadState} />
+                <ImageUploadField
+                  label="صورة العرض"
+                  value={(form as OfferContent).image || ""}
+                  ruleKey="offer"
+                  onChange={(value) => updateForm("image", value)}
+                />       
                 <div className="grid gap-3 md:grid-cols-2">
                   <Field label="السعر قبل"><Input value={(form as OfferContent).oldPrice || ""} onChange={(event) => updateForm("oldPrice", event.target.value)} /></Field>
                   <Field label="السعر بعد"><Input value={(form as OfferContent).newPrice || ""} onChange={(event) => updateForm("newPrice", event.target.value)} /></Field>
@@ -960,7 +893,12 @@ function CollectionEditor({
               <>
                 <Field label="العنوان"><Input value={(form as BeforeAfterCaseContent).title || ""} onChange={(event) => updateForm("title", event.target.value)} /></Field>
                 <Field label="نوع الخدمة"><Input value={(form as BeforeAfterCaseContent).service || ""} onChange={(event) => updateForm("service", event.target.value)} /></Field>
-                <ImageField label="الصورة" value={(form as BeforeAfterCaseContent).image || ""} fieldId="case-image" onChange={(value) => updateForm("image", value)} uploadState={uploadState} setUploadState={setUploadState} />
+                <ImageUploadField
+                  label="صورة قبل وبعد"
+                  value={(form as BeforeAfterCaseContent).image || ""}
+                  ruleKey="beforeAfter"
+                  onChange={(value) => updateForm("image", value)}
+                />              
               </>
             ) : null}
 
@@ -968,7 +906,12 @@ function CollectionEditor({
               <>
                 <Field label="اسم الجهاز"><Input value={(form as DeviceContent).name || ""} onChange={(event) => updateForm("name", event.target.value)} /></Field>
                 <Field label="الوصف"><Textarea value={(form as DeviceContent).description || ""} onChange={(event) => updateForm("description", event.target.value)} /></Field>
-                <ImageField label="صورة الجهاز" value={(form as DeviceContent).image || ""} fieldId="device-image" onChange={(value) => updateForm("image", value)} uploadState={uploadState} setUploadState={setUploadState} />
+                <ImageUploadField
+                  label="صورة الجهاز"
+                  value={(form as DeviceContent).image || ""}
+                  ruleKey="device"
+                  onChange={(value) => updateForm("image", value)}
+                />
                 <Field label="ملاحظة"><Input value={(form as DeviceContent).note || ""} onChange={(event) => updateForm("note", event.target.value)} /></Field>
               </>
             ) : null}
@@ -976,7 +919,12 @@ function CollectionEditor({
             {type === "gallery" ? (
               <>
                 <Field label="عنوان الصورة"><Input value={(form as GalleryItemContent).title || ""} onChange={(event) => updateForm("title", event.target.value)} /></Field>
-                <ImageField label="الصورة" value={(form as GalleryItemContent).src || ""} fieldId="gallery-image" onChange={(value) => updateForm("src", value)} uploadState={uploadState} setUploadState={setUploadState} />
+                <ImageUploadField
+                  label="صورة العيادة"
+                  value={(form as GalleryItemContent).src || ""}
+                  ruleKey="gallery"
+                  onChange={(value) => updateForm("src", value)}
+                />
               </>
             ) : null}
 
@@ -1005,7 +953,6 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
   const [active, setActive] = useState<AdminSectionKey>("overview");
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
-  const [uploadState, setUploadState] = useState<UploadState | null>(null);
 
   const currentSection = useMemo(() => menuSections.find((section) => section.key === active), [active]);
 
@@ -1117,8 +1064,6 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
                 description="إضافة وتعديل العروض بصورة وأسعار وتاريخ ظهور."
                 items={content.offers || []}
                 onChange={(offers) => setContent((current) => ({ ...current, offers: offers as OfferContent[] }))}
-                uploadState={uploadState}
-                setUploadState={setUploadState}
               />
             ) : null}
 
@@ -1129,8 +1074,6 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
                 description="حالات قبل وبعد بصور وعنوان ونوع الخدمة."
                 items={content.beforeAfterCases || []}
                 onChange={(beforeAfterCases) => setContent((current) => ({ ...current, beforeAfterCases: beforeAfterCases as BeforeAfterCaseContent[] }))}
-                uploadState={uploadState}
-                setUploadState={setUploadState}
               />
             ) : null}
 
@@ -1141,8 +1084,6 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
                 description="أسماء الأجهزة وصورها ووصفها داخل سكشن الأجهزة."
                 items={content.devices || []}
                 onChange={(devices) => setContent((current) => ({ ...current, devices: devices as DeviceContent[] }))}
-                uploadState={uploadState}
-                setUploadState={setUploadState}
               />
             ) : null}
 
@@ -1153,8 +1094,6 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
                 description="صور العيادة والمعرض، مع رفع مباشر إلى Cloudinary."
                 items={content.gallery || []}
                 onChange={(gallery) => setContent((current) => ({ ...current, gallery: gallery as GalleryItemContent[] }))}
-                uploadState={uploadState}
-                setUploadState={setUploadState}
               />
             ) : null}
 
@@ -1165,8 +1104,6 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
                 description="لو السكشن فاضي سيظهر في الموقع أنه لا توجد آراء حاليًا."
                 items={content.testimonials || []}
                 onChange={(testimonials) => setContent((current) => ({ ...current, testimonials: testimonials as TestimonialContent[] }))}
-                uploadState={uploadState}
-                setUploadState={setUploadState}
               />
             ) : null}
           </main>
