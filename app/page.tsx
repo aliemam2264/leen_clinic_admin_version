@@ -158,7 +158,7 @@ export default async function Home() {
 
         <section id="home" className="relative section-padding pt-12 md:pt-20">
           <div className="container grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr]">
-            <div className="relative z-10 order-2 lg:order-1">
+            <div className="relative z-10">
               <Badge className="mb-5 bg-white/80 text-wine">جلدية · تجميل · ليزر · عناية بالبشرة</Badge>
               <h1 className="max-w-4xl text-4xl font-extrabold leading-[1.35] text-wineDark md:text-5xl lg:text-6xl">
                 جمال طبيعي، تفاصيل أهدى، وحجز أسرع مع <span className="text-orange">لين</span>
@@ -189,7 +189,7 @@ export default async function Home() {
               )}
             </div>
 
-            <div className="relative z-10 order-1 lg:order-2">
+            <div className="relative z-10">
               <div className="absolute -right-8 top-8 h-40 w-40 rounded-full bg-orange/20 blur-3xl" />
               <div className="absolute -left-8 bottom-8 h-40 w-40 rounded-full bg-wine/20 blur-3xl" />
               <div className="relative max-w-[520px] justify-self-center overflow-hidden rounded-[2.5rem] border border-white/80 bg-white/55 shadow-soft backdrop-blur-xl lg:justify-self-end">
