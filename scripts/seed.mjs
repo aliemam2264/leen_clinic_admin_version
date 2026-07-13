@@ -30,6 +30,7 @@ const SiteContentSchema = new mongoose.Schema(
     key: { type: String, required: true, unique: true, default: "main" },
     siteConfig: { type: mongoose.Schema.Types.Mixed, required: true },
     heroStats: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    aboutSection: { type: mongoose.Schema.Types.Mixed, default: {} },
     serviceCategories: { type: [mongoose.Schema.Types.Mixed], default: [] },
     devices: { type: [mongoose.Schema.Types.Mixed], default: [] },
     beforeAfterCases: { type: [mongoose.Schema.Types.Mixed], default: [] },

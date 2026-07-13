@@ -12,6 +12,7 @@ const SiteContentSchema = new Schema(
     key: { type: String, required: true, unique: true, default: "main" },
     siteConfig: { type: Schema.Types.Mixed, required: true },
     heroStats: { type: Array, default: [] },
+    aboutSection: { type: Schema.Types.Mixed, default: {} },
     serviceCategories: { type: Array, default: [] },
     devices: { type: Array, default: [] },
     beforeAfterCases: { type: Array, default: [] },

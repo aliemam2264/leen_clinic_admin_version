@@ -90,9 +90,19 @@ export type OfferContent = {
   isActive?: boolean;
 };
 
+export type AboutSectionContent = {
+  isActive?: boolean;
+  badge?: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  points?: string[];
+};
+
 export type SiteContent = {
   siteConfig: SiteConfigContent;
   heroStats: HeroStat[];
+  aboutSection?: AboutSectionContent;
   serviceCategories: ServiceCategoryContent[];
   devices: DeviceContent[];
   beforeAfterCases: BeforeAfterCaseContent[];
@@ -101,3 +111,4 @@ export type SiteContent = {
   offers: OfferContent[];
   updatedAt?: string;
 };
+

@@ -9,6 +9,10 @@ function normalizeContent(content: Partial<SiteContent> | null | undefined): Sit
   return {
     siteConfig: content?.siteConfig || defaultSiteContent.siteConfig,
     heroStats: content?.heroStats || [],
+    aboutSection: {
+      ...defaultSiteContent.aboutSection,
+      ...(content?.aboutSection || {}),
+    },
     serviceCategories: content?.serviceCategories || [],
     devices: content?.devices || [],
     beforeAfterCases: content?.beforeAfterCases || [],
@@ -35,6 +39,7 @@ export async function getSiteContent(): Promise<SiteContent> {
     return normalizeContent({
       siteConfig: document.siteConfig,
       heroStats: document.heroStats,
+      aboutSection: document.aboutSection,
       serviceCategories: document.serviceCategories,
       devices: document.devices,
       beforeAfterCases: document.beforeAfterCases,

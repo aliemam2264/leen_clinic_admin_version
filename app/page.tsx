@@ -49,6 +49,102 @@ function buildOfferWhatsappUrl(
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
+const DEFAULT_ABOUT_IMAGE = "/images/about-us.png";
+
+function AboutSection({
+  aboutSection,
+}: {
+  aboutSection?: {
+    isActive?: boolean;
+    badge?: string;
+    title?: string;
+    description?: string;
+    image?: string;
+    points?: string[];
+  };
+}) {
+  if (!aboutSection?.isActive) return null;
+
+  const hasContent =
+    aboutSection.title ||
+    aboutSection.description ||
+    aboutSection.image ||
+    aboutSection.points?.length;
+
+  const aboutImage =
+    typeof aboutSection?.image === "string" && aboutSection.image.trim()
+      ? aboutSection.image.trim()
+      : DEFAULT_ABOUT_IMAGE;
+  
+  if (!hasContent) {
+    return (
+      <section id="about" className="bg-white py-20">
+        <div className="container">
+          <div className="rounded-[2rem] border border-wine/10 bg-peach/40 p-8 text-center">
+            <p className="text-sm font-black text-wine/60">
+              لا توجد بيانات في سكشن من نحن حاليًا.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="about" className="bg-white py-20">
+      <div className="container">
+        <div className="grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="order-2 lg:order-1">
+            <div className="rounded-[2.5rem] border border-wine/10 bg-peach/40 shadow-soft">
+              <img
+                src={aboutImage}
+                alt={aboutSection.title || "من نحن"}
+                className="aspect-[1.18] w-full rounded-[2rem] object-cover"
+              />
+            </div>
+          </div>
+
+          <div className="order-1 lg:order-2">
+            {aboutSection.badge ? (
+              <p className="mb-4 inline-flex rounded-full bg-orange/10 px-4 py-2 text-xs font-black text-orange">
+                {aboutSection.badge}
+              </p>
+            ) : null}
+
+            {aboutSection.title ? (
+              <h2 className="text-3xl font-black leading-[1.4] text-wineDark md:text-5xl">
+                {aboutSection.title}
+              </h2>
+            ) : null}
+
+            {aboutSection.description ? (
+              <p className="mt-5 text-lg leading-9 text-wine/70">
+                {aboutSection.description}
+              </p>
+            ) : null}
+
+            {aboutSection.points?.length ? (
+              <div className="mt-7 grid gap-3">
+                {aboutSection.points.map((point) => (
+                  <div
+                    key={point}
+                    className="flex items-start gap-3 rounded-2xl border border-wine/10 bg-white p-4 shadow-sm"
+                  >
+                    <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-orange" />
+                    <p className="text-sm font-bold leading-7 text-wine/75">
+                      {point}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default async function Home() {
   const content = await getSiteContent();
   const { siteConfig, heroStats, serviceCategories, beforeAfterCases, devices, gallery, testimonials, offers } = content;
@@ -138,6 +234,9 @@ export default async function Home() {
             })}
           </div>
         </section>
+
+        {/* About Section */}
+        <AboutSection aboutSection={content.aboutSection} />
 
         <section id="services" className="relative z-10 section-padding">
           <div className="container">
@@ -382,7 +481,10 @@ export default async function Home() {
             </div>
 
             <div className="mt-8 flex justify-center border-t border-wine/10 pt-5 text-sm text-muted-foreground">
-              <span>© {new Date().getFullYear()} {siteConfig.arabicName}. جميع الحقوق محفوظة.</span>
+              <div className="flex flex-col gap-2 items-center">
+                <span>© {new Date().getFullYear()} {siteConfig.arabicName}. جميع الحقوق محفوظة.</span>
+                <span>تطبق الشروط والاحكام</span>
+              </div>
             </div>
           </div>
         </footer>

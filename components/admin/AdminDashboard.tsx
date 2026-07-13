@@ -21,6 +21,7 @@ import {
   Sparkles,
   Star,
   Trash2,
+  Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,7 @@ import { ImageUploadField } from "./ImageUploadField";
 const menuSections = [
   { key: "overview", label: "نظرة عامة", icon: LayoutDashboard },
   { key: "settings", label: "الإعدادات العامة", icon: Settings },
+  {key: "about", label: "من نحن", icon: Info},
   { key: "heroStats", label: "إحصائيات الهيرو", icon: BarChart3 },
   { key: "serviceCategories", label: "الخدمات والأسعار", icon: Sparkles },
   { key: "offers", label: "العروض", icon: Gift },
@@ -88,14 +90,14 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-function EmptyAdminState({ title = "مفيش بيانات في السكشن ده حاليًا." }: { title?: string }) {
+function EmptyAdminState({ title = "لا يوجد بيانات لهذا السكشن في الوقت حالي." }: { title?: string }) {
   return (
     <div className="rounded-[1.75rem] border border-dashed border-wine/20 bg-white/70 p-8 text-center shadow-sm">
       <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-peach text-wine">
         <ImageIcon className="h-6 w-6" />
       </div>
       <p className="mt-4 text-lg font-black text-wineDark">{title}</p>
-      <p className="mt-2 text-sm leading-7 text-muted-foreground">اضغط إضافة جديد واملأ الفورم، وبعدها احفظ التعديلات.</p>
+      <p className="mt-2 text-sm leading-7 text-muted-foreground">اضغط إضافة جديد واملأ الفورم، ثم احفظ التعديلات.</p>
     </div>
   );
 }
@@ -160,7 +162,7 @@ function Overview({ content }: { content: SiteContent }) {
   ];
 
   return (
-    <AdminShellCard title="نظرة عامة" description="ملخص سريع للداتا الموجودة في الموقع حاليًا.">
+    <AdminShellCard title="نظرة عامة">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
           <div key={card.label} className="rounded-[1.5rem] border border-wine/10 bg-hero-glow p-5">
@@ -170,6 +172,120 @@ function Overview({ content }: { content: SiteContent }) {
         ))}
       </div>
     </AdminShellCard>
+  );
+}
+
+function AboutEditor({
+  value,
+  onChange,
+}: {
+  value: any;
+  onChange: (value: any) => void;
+}) {
+  const update = (key: string, fieldValue: any) => {
+    onChange({ ...value, [key]: fieldValue });
+  };
+
+  const points = Array.isArray(value?.points) ? value.points : [];
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-[2rem] border border-wine/10 bg-white p-6 shadow-sm">
+        <div className="grid gap-5 md:grid-cols-2">
+          <label className="flex items-center gap-2 text-sm font-black text-wineDark md:col-span-2">
+            <input
+              type="checkbox"
+              checked={Boolean(value?.isActive)}
+              onChange={(event) => update("isActive", event.target.checked)}
+            />
+            إظهار سكشن من نحن
+          </label>
+
+          <Field label="البادج">
+            <Input
+              value={value?.badge || ""}
+              onChange={(event) => update("badge", event.target.value)}
+              placeholder="من نحن"
+            />
+          </Field>
+
+          <Field label="العنوان">
+            <Input
+              value={value?.title || ""}
+              onChange={(event) => update("title", event.target.value)}
+              placeholder="مجمع لين الشرق الطبي"
+            />
+          </Field>
+
+          <div className="md:col-span-2">
+            <Field label="الوصف">
+              <textarea
+                value={value?.description || ""}
+                onChange={(event) => update("description", event.target.value)}
+                placeholder="اكتب وصف قصير عن العيادة..."
+                className="min-h-32 w-full rounded-2xl border border-wine/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange"
+              />
+            </Field>
+          </div>
+
+          <div className="md:col-span-2">
+            <ImageUploadField
+              label="صورة من نحن"
+              value={value?.image || ""}
+              ruleKey="gallery"
+              onChange={(url) => update("image", url)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-[2rem] border border-wine/10 bg-white p-6 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="text-lg font-black text-wineDark">النقاط المختصرة</h3>
+
+          <button
+            type="button"
+            onClick={() => update("points", [...points, ""])}
+            className="rounded-full bg-orange px-4 py-2 text-xs font-black text-white"
+          >
+            إضافة نقطة
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {points.length ? (
+            points.map((point: string, index: number) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  value={point}
+                  onChange={(event) => {
+                    const next = [...points];
+                    next[index] = event.target.value;
+                    update("points", next);
+                  }}
+                  placeholder="اكتب نقطة مختصرة"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = points.filter((_: string, itemIndex: number) => itemIndex !== index);
+                    update("points", next);
+                  }}
+                  className="rounded-xl border border-red-200 bg-red-50 px-3 text-xs font-black text-red-600"
+                >
+                  حذف
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="rounded-2xl bg-peach/40 p-4 text-center text-sm font-bold text-wine/50">
+              لا توجد نقاط حاليًا.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -203,7 +319,7 @@ function SocialsEditor({ socials, onChange }: { socials: SocialLink[]; onChange:
 
   return (
     <div className="mt-6 rounded-[1.5rem] border border-wine/10 bg-peach/30 p-4">
-      <h3 className="text-lg font-black text-wineDark">روابط السوشيال</h3>
+      <h3 className="text-lg font-black text-wineDark">روابط السوشيال ميديا</h3>
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
         <div className="overflow-hidden rounded-2xl border border-wine/10 bg-white">
           {socials.length === 0 ? (
@@ -276,12 +392,12 @@ function SettingsEditor({ value, onChange }: { value: SiteConfigContent; onChang
   };
 
   return (
-    <AdminShellCard title="الإعدادات العامة" description="عدّل بيانات العيادة، الواتساب، العنوان، الخريطة، وروابط السوشيال من فورم واضح بدل JSON.">
+    <AdminShellCard title="الإعدادات العامة">
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="اسم البراند بالإنجليزي">
+        <Field label="اسم البراند باللغة الانجليزية">
           <Input value={value.brand || ""} onChange={(event) => update("brand", event.target.value)} placeholder="Leen" />
         </Field>
-        <Field label="اسم العيادة بالعربي">
+        <Field label="اسم العيادة باللغة العربية">
           <Input value={value.arabicName || ""} onChange={(event) => update("arabicName", event.target.value)} placeholder="مجمع لين الشرق الطبي" />
         </Field>
         <Field label="الوصف القصير">
@@ -341,7 +457,7 @@ function HeroStatsEditor({ value, onChange }: { value: HeroStat[]; onChange: (va
   };
 
   return (
-    <AdminShellCard title="إحصائيات الهيرو" description="الأرقام الصغيرة التي تظهر في أول سكشن بالموقع.">
+    <AdminShellCard title="إحصائيات الهيرو" description="تعديل الاحصائيات">
       <div className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
         <div className="overflow-hidden rounded-2xl border border-wine/10 bg-white">
           {value.length === 0 ? (
@@ -616,7 +732,6 @@ function ServicesEditor({ value, onChange }: { value: ServiceCategoryContent[]; 
   return (
     <AdminShellCard
       title="الخدمات والأسعار"
-      description="الأقسام والخدمات والأسعار والباقات متقسمة لجداول وفورمات. مفيش تعديل JSON هنا."
       action={<Button type="button" variant="orange" onClick={startAddService} disabled={!selectedCategory}><Plus className="h-4 w-4" />إضافة خدمة</Button>}
     >
       <div className="grid gap-5 xl:grid-cols-[320px_1fr]">
@@ -822,7 +937,7 @@ function CollectionEditor({
       <div className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
         <div className="overflow-hidden rounded-[1.5rem] border border-wine/10 bg-white">
           {items.length === 0 ? (
-            <EmptyAdminState title={`مفيش بيانات في ${title} حاليًا.`} />
+            <EmptyAdminState title={`لا يوجد بيانات`} />
           ) : (
             <table className="w-full text-right text-sm">
               <thead className="bg-peach text-wineDark">
@@ -989,9 +1104,8 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
       <div className="border-b border-wine/10 bg-white/85 backdrop-blur-xl">
         <div className="container flex flex-col gap-4 py-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-black text-orange">Leen Admin</p>
+            <p className="text-lg font-black text-orange">Leen Admin</p>
             <h1 className="mt-1 text-3xl font-black text-wineDark">إدارة محتوى الموقع</h1>
-            <p className="mt-2 text-sm text-muted-foreground">التعديل الآن من سايد بار، جداول بيانات، وفورمات إضافة وتعديل بدون JSON.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="outline" onClick={() => window.open("/", "_blank")}><Eye className="h-4 w-4" />فتح الموقع</Button>
@@ -1009,7 +1123,6 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
             <div className="rounded-[2rem] border border-wine/10 bg-white p-3 shadow-sm">
               <div className="mb-3 rounded-[1.5rem] bg-peach px-4 py-3">
                 <p className="text-sm font-black text-wineDark">سكاشن الموقع</p>
-                <p className="mt-1 text-xs text-muted-foreground">اختار سكشن وعدّل بياناته.</p>
               </div>
               <nav className="space-y-2">
                 {menuSections.map((section) => {
@@ -1053,6 +1166,18 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
               <HeroStatsEditor value={content.heroStats || []} onChange={(heroStats) => setContent((current) => ({ ...current, heroStats }))} />
             ) : null}
 
+            {active === "about" ? (
+              <AboutEditor
+                value={content.aboutSection || { isActive: true, badge: "من نحن", title: "", description: "", image: "", points: [] }}
+                onChange={(aboutSection) =>
+                  setContent((current) => ({
+                    ...current,
+                    aboutSection,
+                  }))
+                }
+              />
+            ) : null}
+
             {active === "serviceCategories" ? (
               <ServicesEditor value={content.serviceCategories || []} onChange={(serviceCategories) => setContent((current) => ({ ...current, serviceCategories }))} />
             ) : null}
@@ -1061,7 +1186,7 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
               <CollectionEditor
                 type="offers"
                 title="العروض"
-                description="إضافة وتعديل العروض بصورة وأسعار وتاريخ ظهور."
+                description=""
                 items={content.offers || []}
                 onChange={(offers) => setContent((current) => ({ ...current, offers: offers as OfferContent[] }))}
               />
@@ -1081,7 +1206,7 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
               <CollectionEditor
                 type="devices"
                 title="الأجهزة"
-                description="أسماء الأجهزة وصورها ووصفها داخل سكشن الأجهزة."
+                description=""
                 items={content.devices || []}
                 onChange={(devices) => setContent((current) => ({ ...current, devices: devices as DeviceContent[] }))}
               />
@@ -1091,7 +1216,7 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
               <CollectionEditor
                 type="gallery"
                 title="صور العيادة"
-                description="صور العيادة والمعرض، مع رفع مباشر إلى Cloudinary."
+                description=""
                 items={content.gallery || []}
                 onChange={(gallery) => setContent((current) => ({ ...current, gallery: gallery as GalleryItemContent[] }))}
               />
@@ -1101,7 +1226,7 @@ export function AdminDashboard({ initialContent }: { initialContent: SiteContent
               <CollectionEditor
                 type="testimonials"
                 title="آراء العملاء"
-                description="لو السكشن فاضي سيظهر في الموقع أنه لا توجد آراء حاليًا."
+                description=""
                 items={content.testimonials || []}
                 onChange={(testimonials) => setContent((current) => ({ ...current, testimonials: testimonials as TestimonialContent[] }))}
               />

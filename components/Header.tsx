@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Menu, MessageCircle, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -87,7 +88,7 @@ export function Header({ whatsappNumber }: { whatsappNumber: string }) {
         <div className="hidden items-center gap-3 lg:flex">
           <Button asChild variant="orange">
             <a href={whatsappHref} target="_blank" rel="noreferrer">
-              <MessageCircle className="h-4 w-4" />
+              <FaWhatsapp className="h-4 w-4" />
               احجزي الآن
             </a>
           </Button>
@@ -126,7 +127,7 @@ export function Header({ whatsappNumber }: { whatsappNumber: string }) {
           ))}
           <Button asChild variant="orange" className="mt-2 w-full">
             <a href={whatsappHref} target="_blank" rel="noreferrer" onClick={() => setIsOpen(false)}>
-              <MessageCircle className="h-4 w-4" />
+              <FaWhatsapp className="h-4 w-4" />
               احجزي عبر واتساب
             </a>
           </Button>
